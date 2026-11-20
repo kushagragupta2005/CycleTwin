@@ -178,7 +178,7 @@ def render_patient(*, language: str, claims: dict) -> None:
         st.dataframe(pd.DataFrame([{
             "AUROC": metrics["auroc"], "Brier": metrics["brier"], "Held-out cycles": metrics["n_cycles"],
             "AUROC 95% CI": f"{metrics['auroc_cluster_bootstrap_95ci'][0]:.3f}–{metrics['auroc_cluster_bootstrap_95ci'][1]:.3f}",
-        }]), hide_index=True, use_container_width=True)
+        }]), hide_index=True, width="stretch")
         st.caption("Synthetic held-out data only. The confidence interval groups cycles by generated patient; it is not an individual confidence guarantee.")
 
     if withheld:
@@ -223,7 +223,7 @@ def render_patient(*, language: str, claims: dict) -> None:
 
     with st.expander("Exact fitted feature evidence", expanded=detailed):
         st.caption("Coefficient × standardized input from the persisted fitted model. These values show association inside the simulator, not causation.")
-        st.dataframe(pd.DataFrame(output["contributions"]), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(output["contributions"]), hide_index=True, width="stretch")
 
     st.markdown("## Assumption sandbox")
     st.markdown("**In plain words:** Edit an invented prior-cycle average and rerun the same fitted synthetic classifier. This is not a treatment or intervention forecast.")
@@ -241,7 +241,7 @@ def render_patient(*, language: str, claims: dict) -> None:
         pass
     log = st.session_state.get("alert_log", [])
     if log:
-        st.dataframe(pd.DataFrame(log), hide_index=True, use_container_width=True)
+        st.dataframe(pd.DataFrame(log), hide_index=True, width="stretch")
     else:
         st.caption("No synthetic alerts have been added in this browser session.")
     st.caption("At most one alert per synthetic patient-cycle. Scores withheld by safety rules cannot enter the log.")

@@ -1,14 +1,21 @@
 """Safety, glossary, consent and local synthetic-import tools for v3."""
 from __future__ import annotations
 
-from pathlib import Path
-import subprocess
-import sys
-
 import streamlit as st
 
-from src.adapters.apple_health import parse_export, parse_upload_bytes
+from src.adapters.apple_health import parse_upload_bytes
+from src.adapters.synthetic_export import build_synthetic_export
+from src.paths import repo_url
 from src.safety import BOOLEAN_FIELDS, abstention_reasons
+
+
+PROJECT_RECORD = (
+    ("Assumptions", "docs/assumptions.md"),
+    ("Evaluation plan", "docs/eval_plan.md"),
+    ("Research validity and related work", "docs/related_work.md"),
+    ("Judge Q&A", "docs/jury_qa.md"),
+    ("Privacy design notes", "docs/privacy.md"),
+)
 
 
 def _readable(name: str) -> str:
@@ -74,11 +81,10 @@ def render_about_safety(*, claims: dict, language: str) -> None:
     with st.expander("Synthetic Apple Health import", expanded=False):
         st.caption("Use the bundled synthetic export only. The parser supports a limited subset of temperature, resting heart rate, HRV, step, sleep, and cycle-start records.")
         if st.button("Load synthetic Apple Health export", key="v3_apple_synthetic"):
-            subprocess.run([sys.executable, "scripts/make_synthetic_apple_export.py"], check=True, capture_output=True)
             st.session_state["apple_loaded"] = True
-        export_path = Path("apple_health_export/export.xml")
-        if st.session_state.get("apple_loaded") and export_path.exists():
-            parsed = parse_export(export_path)
+        if st.session_state.get("apple_loaded"):
+            # Built and parsed in memory: nothing is written to the (shared) app directory.
+            parsed = parse_upload_bytes(build_synthetic_export())
             st.caption(f"Synthetic XML parsed: {len(parsed['daily'])} dates · {len(parsed['cycle_starts'])} cycle starts.")
         uploaded = st.file_uploader("Or upload a synthetic export XML", type=["xml"], key="v3_apple_upload")
         if uploaded:
@@ -87,9 +93,5 @@ def render_about_safety(*, claims: dict, language: str) -> None:
 
     st.markdown("## Read the project record")
     st.markdown(
-        "- [Assumptions](docs/assumptions.md)\n"
-        "- [Evaluation plan](docs/eval_plan.md)\n"
-        "- [Research validity and related work](docs/related_work.md)\n"
-        "- [Judge Q&A](docs/jury_qa.md)\n"
-        "- [Privacy design notes](docs/privacy.md)"
+        "\n".join(f"- [{title}]({repo_url(path)})" for title, path in PROJECT_RECORD)
     )
