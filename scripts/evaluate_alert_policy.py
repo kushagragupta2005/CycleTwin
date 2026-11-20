@@ -59,7 +59,7 @@ def run():
             result['tiers'][str(tier)][str(seed)]=summary
             for row in selected:
                 output_rows.append({'tier':tier,'seed':seed,**row})
-    (ROOT/'results_alert_policy_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
+    (ROOT/'results/alert_policy_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
     fields=['tier','seed','patient','cycle','day','risk','threshold','abstain','event','ovulation_day','alert']
     with (ROOT/'results/alert_policy_frozen_rows.csv').open('w',newline='') as handle:
         writer=csv.DictWriter(handle,fieldnames=fields);writer.writeheader();writer.writerows(output_rows)

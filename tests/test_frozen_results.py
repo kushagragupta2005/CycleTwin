@@ -15,7 +15,7 @@ class FrozenResultsTests(unittest.TestCase):
     def test_frozen_raw_result_is_immutable_and_matches_tagged_source(self):
         receipt=json.loads((ROOT/'results/frozen_receipt.json').read_text())
         self.assertEqual(receipt['status'],'completed once')
-        self.assertEqual(hashlib.sha256((ROOT/'results_final_frozen.json').read_bytes()).hexdigest(),receipt['results_sha256'])
+        self.assertEqual(hashlib.sha256((ROOT/'results/final_frozen.json').read_bytes()).hexdigest(),receipt['results_sha256'])
         card=json.loads((ROOT/'models/frozen/model_card.json').read_text())
         self.assertEqual(card['git_hash'],receipt['commit'])
         self.assertEqual(len(card['models']),36)

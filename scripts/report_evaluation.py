@@ -47,12 +47,12 @@ def run():
                         csv_rows.append({'dataset':dataset,'seed':seed,'day':day,'tier':tier,'subset':name,**flat})
                     result[dataset][str(seed)][f'day_{day}_tier_{tier}']=output
                     print('Reported synthetic',dataset,seed,day,tier,flush=True)
-    path=ROOT/'results_reporting.json';path.write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
+    path=ROOT/'results/reporting.json';path.write_text(json.dumps(result,indent=2,allow_nan=False)+'\n')
     with (ROOT/'results/reporting_subgroups.csv').open('w',newline='') as handle:
         writer=csv.DictWriter(handle,fieldnames=list(dict.fromkeys(k for row in csv_rows for k in row)))
         writer.writeheader();writer.writerows(csv_rows)
     # This is the intentional metric-definition correction, not a predictor change.
-    development=json.loads((ROOT/'results.json').read_text())
+    development=json.loads((ROOT/'results/development.json').read_text())
     for seed,sr in development['seeds'].items():
         for key,m in sr['metrics'].items():
             point=result['development'][seed][key]['all']
@@ -60,7 +60,7 @@ def run():
             m.setdefault('legacy_custom_auprc_cluster_bootstrap_95ci',m['auprc_cluster_bootstrap_95ci'])
             m['auprc']=point['average_precision'];m['auprc_cluster_bootstrap_95ci']=point['intervals']['average_precision']['95ci']
             m['auprc_definition']='sklearn average_precision_score; threshold-grouped ties'
-    (ROOT/'results.json').write_text(json.dumps(development,indent=2)+'\n')
+    (ROOT/'results/development.json').write_text(json.dumps(development,indent=2)+'\n')
 
 
 if __name__=='__main__':run()

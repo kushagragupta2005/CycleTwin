@@ -70,7 +70,7 @@ def run():
             'mean_auroc':float(np.mean([x['auroc'] for x in per_seed])),
             'mean_brier':float(np.mean([x['brier'] for x in per_seed])),
             'mean_safety_withhold_rate':float(np.mean([x['safety_withhold_rate'] for x in per_seed]))}
-    (ROOT/'results_robustness_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
+    (ROOT/'results/robustness_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
     with (ROOT/'results/robustness_frozen.csv').open('w',newline='') as f:
         writer=csv.DictWriter(f,fieldnames=list(csv_rows[0]));writer.writeheader();writer.writerows(csv_rows)
 

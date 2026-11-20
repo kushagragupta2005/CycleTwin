@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "CycleTwin: forecasting late or absent ovulation from synthetic calendar and wearable signals"
+abstract: >-
+  A synthetic-data research prototype that forecasts a generated late or absent
+  ovulation event from calendar history and wearable-style signals, with calibrated
+  logistic models, a fail-closed safety gate and a once-only frozen evaluation.
+  Not for diagnosis, contraception or conception planning.
+authors:
+  - family-names: Gupta
+    given-names: Kushagra
+    affiliation: Vellore Institute of Technology
+repository-code: "https://github.com/kushagragupta2005/CycleTwin"
+license: MIT
+date-released: "2026-10-20"
+keywords:
+  - digital health
+  - menstrual cycle
+  - ovulation forecasting
+  - wearables
+  - synthetic data
+  - calibration
+  - conformal prediction
+  - streamlit

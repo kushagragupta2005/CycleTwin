@@ -18,7 +18,7 @@ def matrix(rows, seed):
     return np.column_stack([build_feature_matrix(rows,DAY,2),np.asarray([assay_like_features(r,seed,CV) for r in rows])])
 
 def run():
-    frozen=json.loads((ROOT/'results_final_frozen.json').read_text())
+    frozen=json.loads((ROOT/'results/final_frozen.json').read_text())
     result={'scope':'Post-freeze synthetic extension. Assay-like indices are simulated from label-generating internal latents and are neither hormone measurements nor clinical EHR.',
             'day':DAY,'assay_cv':CV,'features':['Tier-2 wearable features','simulated_ir_assay_like_index','simulated_androgen_assay_like_index'],
             'seeds':{},'original_tier3_upper_bound_reference':{}}
@@ -34,6 +34,6 @@ def run():
         result['original_tier3_upper_bound_reference'][str(seed)]=frozen['seeds'][str(seed)]['metrics']['day_18_tier_3']
     result['means']={key:float(np.mean([x[key] for x in result['seeds'].values()])) for key in ('auroc','average_precision','brier','sensitivity','ppv')}
     result['original_tier3_upper_bound_means']={key:float(np.mean([x[key] for x in result['original_tier3_upper_bound_reference'].values()])) for key in ('auroc','auprc','brier')}
-    (ROOT/'results_lab_proxy_extension.json').write_text(json.dumps(result,indent=2)+'\n')
+    (ROOT/'results/lab_proxy_extension.json').write_text(json.dumps(result,indent=2)+'\n')
 
 if __name__=='__main__':run()

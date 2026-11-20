@@ -1,4 +1,84 @@
-# CycleTwin app-layer refactor plan
+# CycleTwin refactor plans
+
+- [Part 2: repository presentation](#part-2-repository-presentation) (branch `docs/repo-presentation`)
+- [Part 1: app layer](#part-1-app-layer) (merged in #1)
+
+## Part 2: repository presentation
+
+The GitHub landing page still read like an unfinished hackathon submission.
+The deadline was 2026-10-20, and the repository is now a public portfolio and
+research project.
+
+### Findings
+
+* **Hackathon-first README.**
+  * The title used the old repo name (`CycleTwin_VIT`).
+  * Two placeholder links were broken: `Live demo — replace LIVE_DEMO_URL`
+    and `Video — replace VIDEO_URL`.
+  * The opening was registration text ("Team…, College…, Registration and
+    contact details are submitted… on Unstop").
+  * About 150 table rows (every seed × day × tier) came before any
+    explanation of how to run the project.
+* **No quick orientation.**
+  * There was no badge row, no current screenshot (the PNGs show the
+    retired pre-v3 dashboard), no architecture diagram and no
+    project-structure map.
+  * Testing and regeneration commands were buried in prose.
+* **Cluttered root.**
+  * Nine result JSON files (`results.json`, `results_*.json`) sat next to
+    `app.py`, alongside hackathon files (`SUBMISSION_CHECKLIST.md`,
+    `UI_V3_CHANGELOG.md`).
+  * There was no `CHANGELOG.md` or `CITATION.cff`.
+* **Empty GitHub "About" box.** No description and no topics.
+* **Constraint.** `README.md` is generated from `docs/claims.json`, and
+  tests and `scripts/validate_claims.py` require the file to match the
+  generated copy exactly, so the README cannot be hand-edited.
+
+### Plan
+
+1. **Generator.**
+   * `scripts/deliverable_content.compose()` keeps producing the full
+     evidence write-up, but as `docs/RESULTS.md` (same sections and
+     caveats, plus the moved file paths).
+   * It now also builds a conventional project README from the same
+     claims: badges, synthetic-data warning, screenshot, overview,
+     features, quick start, mermaid architecture, headline results, "where
+     it breaks", project structure, development, limitations,
+     acknowledgements, citation and licence.
+   * `write_claim_deliverables.py` writes both files, and
+     `validate_claims.py` checks both.
+   * Remove the obsolete `scripts/update_readme_results.py`. It targets
+     README markers that no longer exist and is not called by the Makefile.
+2. **Root declutter.**
+   * `git mv` the result JSONs into `results/`: `results.json` →
+     `results/development.json`, `results_X.json` → `results/X.json`.
+   * Update every reader and writer (scripts and tests).
+   * File contents are untouched, so the frozen receipt hash still
+     verifies.
+   * Historical audit and gate logs keep their original wording.
+3. **Hackathon archive.**
+   * Move `SUBMISSION_CHECKLIST.md` to `docs/submission/CHECKLIST.md`
+     (`build_submission.py` writes there).
+   * Move `UI_V3_CHANGELOG.md` to `docs/UI_V3_CHANGELOG.md`.
+   * Add a root `CHANGELOG.md` and `CITATION.cff`.
+4. **Screenshots.** Capture the current v3 interface for the README hero
+   image.
+5. **CI.** Add Python 3.9 next to 3.11, pinned to `ubuntu-24.04` because
+   `ubuntu-latest` (26.04) has no 3.9 build, so the README's version badge
+   matches what is tested.
+6. **GitHub About.** Set the description and topics with `gh repo edit`.
+
+### Regression gate
+
+* The deck, architecture, video-script and runbook entries in
+  `docs/claims.json` stay byte-identical, so the PPTX/PDF deliverables need
+  no rebuild.
+* All moved result files keep their SHA-256.
+* All tests pass, as do `build_claims.py --check` and `validate_claims.py`.
+
+---
+
+## Part 1: app layer
 
 Branch: `fix/cycletwin-app-entry`.
 
