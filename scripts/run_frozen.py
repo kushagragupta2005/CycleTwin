@@ -24,7 +24,7 @@ def launch():
     if tagged!=current: raise RuntimeError('Run the frozen protocol only from its exact tagged commit')
     if subprocess.check_output(['git','status','--porcelain'],text=True).strip():
         raise RuntimeError('Freeze requires a clean checkout before execution')
-    output=Path('results_final_frozen.json')
+    output=Path('results/final_frozen.json')
     if output.exists(): raise FileExistsError('Frozen result already exists; never overwrite it')
     fd=acquire_once_lock(Path('results/frozen_execution.lock'))
     with os.fdopen(fd,'w') as handle:

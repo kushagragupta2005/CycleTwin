@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 ROOT=Path(__file__).resolve().parents[1]
 
 def run():
-    report=json.loads((ROOT/'results_robustness_frozen.json').read_text());out=ROOT/'docs/figures';out.mkdir(exist_ok=True)
+    report=json.loads((ROOT/'results/robustness_frozen.json').read_text());out=ROOT/'docs/figures';out.mkdir(exist_ok=True)
     groups=[('additional_missing_fraction','Additional missing fraction'),('noise_multiplier','Noise multiplier'),('constant_device_bias_c','Constant temperature bias (°C)'),('device_drift_c_per_day','Temperature drift (°C/day)'),('ovulation_base_shift_days','Generated ovulation shift (days)')]
     plt.rcParams.update({'font.family':'DejaVu Sans','font.size':10,'axes.spines.top':False,'axes.spines.right':False,'svg.fonttype':'none'})
     fig,axes=plt.subplots(1,len(groups),figsize=(18,3.6),sharey=True)

@@ -15,9 +15,9 @@ def build():
                      'evidence':evidence,'human_only':human and not passed})
     add('Public source repository',public['all_pass'],'docs/public_access_check.json: anonymous HTTP checks')
     add('Team and college identified',team['team'] in readme and team['college'] in readme,'README; names supplied by the user')
-    add('Project title',readme.startswith('# CycleTwin'),'README title')
-    add('Problem and healthcare use case','## Problem and use case' in readme,'README; generated late/absent event, no diagnosis claim')
-    add('Technical stack and model','## Stack and pinned dependencies' in readme,'README, requirements, model cards, src/inference.py')
+    add('Project title','\n# CycleTwin\n' in readme,'README title')
+    add('Problem and healthcare use case','## Overview' in readme,'README; generated late/absent event, no diagnosis claim')
+    add('Technical stack and model','## Tech stack' in readme,'README, requirements, model cards, src/inference.py')
     add('Synthetic or open data only',True,'Repository generator and EHR-lite; published references are context, not training data')
     add('Static and dynamic stream fusion',True,'src/features.py and persisted EHR-lite pipelines; oracle-adjacent disclosure')
     add('Working model and conceptual doctor UI',True,'Persisted inference and Meet Kushi clinician view; covered by unit/AppTest checks')
@@ -43,7 +43,7 @@ def build():
     text+='| Requirement | Status | Evidence / action |\n|---|---|---|\n'
     text+='\n'.join('| '+r['rule']+' | '+r['status']+' | '+r['evidence']+' |' for r in rows)
     text+='\n\nAll technical checklist items pass only when their generated artifacts and tests remain current. CI and gate logs are linked from docs/gate_checks. Never claim clinical validity or use the persona as performance evidence.\n'
-    (ROOT/'SUBMISSION_CHECKLIST.md').write_text(text)
+    (ROOT/'docs/submission/CHECKLIST.md').write_text(text)
     return status
 
 

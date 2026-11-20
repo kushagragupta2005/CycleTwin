@@ -32,6 +32,6 @@ def run():
             'host':{'platform':platform.platform(),'python':platform.python_version()},'model':{'seed':7001,'day':18,'tier':2},
             'cold_subprocess_ms':cold_ms,'warm_repeats':len(durations),'warm_latency_ms':{'mean':statistics.mean(durations),'p50':statistics.median(durations),'p95':sorted(durations)[949],'max':max(durations)},
             'process_peak_rss_kib':peak_rss_kib(),'rss_note':'ru_maxrss for this local Python process; macOS reports bytes and the script converts to KiB.'}
-    (ROOT/'results_ops.json').write_text(json.dumps(result,indent=2)+'\n')
+    (ROOT/'results/ops.json').write_text(json.dumps(result,indent=2)+'\n')
 
 if __name__=='__main__':run()

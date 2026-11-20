@@ -118,7 +118,7 @@ def persist_selected(fitted, seed, day, tier, selected_tier, threshold, metrics,
     }
 
 
-def main(seeds=SEEDS, output_path="results.json", artifact_dir="models", prediction_path="results/predictions_heldout.csv", scope="synthetic development"):
+def main(seeds=SEEDS, output_path="results/development.json", artifact_dir="models", prediction_path="results/predictions_heldout.csv", scope="synthetic development"):
     cards, heldout = {}, []
     results = {"scope": "synthetic internal held-out simulation only; not clinical performance", "plan": "docs/eval_plan.md",
                "model": "sklearn LogisticRegression fitted on train; tier fallback selected by validation Brier, Platt calibration and F1 threshold selection on validation only", "seeds": {}}

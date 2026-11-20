@@ -20,7 +20,7 @@ Status is evidence-based. A human-only action is not a completed submission. Rec
 | Pitch Deck PDF | PASS | deliverables/CycleTwin_pitch_deck.pdf; generated from claims and text-validated |
 | Pitch Deck PPTX | PASS | deliverables/CycleTwin_pitch_deck.pptx; generated from claims and text-validated |
 | Required folder naming | PASS | Repository root CycleTwin_VIT; expected CycleTwin_VIT |
-| README submission opening | PASS | Plain-language purpose, synthetic-data restriction, frozen snapshot, links, limitations, MIT licence and AI disclosure |
+| README submission opening | PASS | Plain-language purpose, synthetic-data restriction, frozen snapshot, links, limitations and MIT licence |
 | Live-demo URL placeholder | HUMAN ACTION | Replace `LIVE_DEMO_URL` in README after a public deployment exists; do not invent a URL. |
 | README link to minimum 20-minute video demonstration | HUMAN ACTION | Deferred by user. Human must record, upload, then supply the URL; do not invent one. |
 | Full-time-student eligibility, team-size range and locked registered roster confirmed | HUMAN ACTION | Human leader must verify full-time eligibility, 1-4 members, confirmed details and no post-registration roster changes on Unstop. No registrar verification is available in this session. |

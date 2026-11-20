@@ -55,6 +55,6 @@ def run():
                 result['results'][key]={'calibration_seed':calibration_seed,'q_class':q_class,'q_day':q_day,
                                         'overall':summarize(test,q_class,q_day),
                                         'by_archetype':{name:summarize([r for r in test if r['archetype']==name],q_class,q_day) for name in sorted({r['archetype'] for r in test})}}
-    (ROOT/'results_conformal_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
+    (ROOT/'results/conformal_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
 
 if __name__=='__main__':run()

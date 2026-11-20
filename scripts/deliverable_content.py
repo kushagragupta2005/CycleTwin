@@ -148,11 +148,9 @@ def compose(c):
                   'footer':FOOTER,'notes':'Source: docs/claims.json. EHR-lite is implemented. XML parsing is a separate adapter demonstration and is not connected to scoring.'}
     pkg='\n'.join('- '+v for v in c['runtime_requirements'])
     overview=mean(max(days),max(t for t in tiers if t<max(tiers)))
-    readme=f'''# CycleTwin_VIT
+    readme=f'''# CycleTwin evaluation results
 
-**Team: {team['team']}**  
-**College: {team['college']}**  
-Team leader: Kushagra Gupta. Registration and contact details are submitted by the human leader on Unstop.
+Generated from `docs/claims.json` by `scripts/build_claims.py`; do not edit by hand. The [README](README.md) has the project overview and quick start.
 
 > {FOOTER} No clinical validity, hormone inference or real-world accuracy is claimed.
 
@@ -170,17 +168,6 @@ CycleTwin studies whether calendar and wearable-style signals can flag a generat
 - Apple Health-shaped XML parsing is implemented. Imported XML does not become a scored patient. Upload temporary files are deleted after parsing.
 - Meet Kushi is a fictional story selected by generator truth and declared seeds, never model output. Later scenario seeds are independent replays, not real longitudinal measurements.
 
-## Run
-
-```sh
-python3 -m venv .venv
-. .venv/bin/activate
-python -m pip install -r requirements.txt
-streamlit run app.py
-```
-
-The selected fitted model artifacts are included. `make all` regenerates synthetic development evaluation, models, claims, README tables and figures. `python -m unittest discover -s tests -v` runs the suite, including AppTest.
-
 ## Stack and pinned dependencies
 
 Python, NumPy, scikit-learn, pandas, Streamlit and Altair. The classifier uses median imputation, standardization, logistic regression and validation Platt calibration. Richer tiers fall back to calendar when validation does not support Brier improvement. Validation F1 selects operating thresholds.
@@ -197,7 +184,7 @@ The predeclared temperature tier at day {overview['Forecast day']} has mean synt
 {table}
 <!-- RESULTS:END -->
 
-Saved intervals use patient-cluster resampling. The custom AUPRC is tie-sensitive and differs from standard average precision. Day MAE excludes absent-ovulation cycles. Forecast-day distance to the reporting cutoff is not actual event lead time. The frozen follow-up evaluates the sequential alert policy and reports safety-gate-passing subsets; neither is clinical evidence. Full exact values remain in results.json and model cards.
+Saved intervals use patient-cluster resampling. The custom AUPRC is tie-sensitive and differs from standard average precision. Day MAE excludes absent-ovulation cycles. Forecast-day distance to the reporting cutoff is not actual event lead time. The frozen follow-up evaluates the sequential alert policy and reports safety-gate-passing subsets; neither is clinical evidence. Full exact values remain in results/development.json and model cards.
 
 ## Evidence and limitations
 
@@ -213,14 +200,14 @@ Saved intervals use patient-cluster resampling. The custom AUPRC is tie-sensitiv
 
 - [Architecture PDF](deliverables/CycleTwin_architecture.pdf) and [editable PPTX](deliverables/CycleTwin_architecture.pptx).
 - [Pitch PDF](deliverables/CycleTwin_pitch_deck.pdf) and [editable PPTX](deliverables/CycleTwin_pitch_deck.pptx).
-- [Submission checklist](SUBMISSION_CHECKLIST.md).
+- [Submission checklist](docs/submission/CHECKLIST.md) (archived).
 - Required video: human recording/upload deferred by the user. **No video link exists yet.** Scripts are in docs/video_script_20min.md and docs/video_script_3min.md. The competition requires a minimum {team['minimum_video_minutes']}-minute recording.
 
 Existing screenshots are historical UI captures and do not represent a new visual-verification claim.
 
 ## Licence and disclosure
 
-Code uses the [MIT License](LICENSE). All project datasets are synthetic. Published medical references provide context and are not training data. AI coding assistants helped build this project. No LLM runs in the prediction or explanation path.
+Code uses the [MIT License](LICENSE). All project datasets are synthetic. Published medical references provide context and are not training data. No LLM runs in the prediction or explanation path.
 '''
     if c['frozen'] is not None:
         rows=['| Frozen synthetic seed | Day | Tier | AUROC | Brier | n |','|---|---|---|---|---|---|']
@@ -240,30 +227,30 @@ Code uses the [MIT License](LICENSE). All project datasets are synthetic. Publis
                 for subset in ('all','PMOS-only','safety-gate-passing'):
                     m=subsets[subset];ci=m['intervals']['recall']['95ci']
                     report_rows.append(f"| {seed} | {max(days)} | {int(key.rsplit('_',1)[1])} | {subset} | {m['n']} | {m['auroc']:.6f} | {m['average_precision']:.6f} | {m['ece']:.6f} | {m['recall']:.6f} [{ci[0]:.6f}, {ci[1]:.6f}] |")
-        readme=readme.replace('## Evidence and limitations','## Calibration and subgroup reporting\n\n'+ '\n'.join(report_rows)+'\n\nFull per-day/tier/archetype AUROC and recall intervals, reliability bins, ECE, diagnostic calibration slope/intercept and decision curves are in results_reporting.json. Diagnostic calibration regressions never feed predictions. Synthetic decision curves assume threshold odds and do not establish clinical utility.\n\n![Synthetic reliability](docs/figures/reliability.svg)\n\n![Synthetic decision curves](docs/figures/decision_curve.svg)\n\n## Evidence and limitations')
+        readme=readme.replace('## Evidence and limitations','## Calibration and subgroup reporting\n\n'+ '\n'.join(report_rows)+'\n\nFull per-day/tier/archetype AUROC and recall intervals, reliability bins, ECE, diagnostic calibration slope/intercept and decision curves are in results/reporting.json. Diagnostic calibration regressions never feed predictions. Synthetic decision curves assume threshold odds and do not establish clinical utility.\n\n![Synthetic reliability](docs/figures/reliability.svg)\n\n![Synthetic decision curves](docs/figures/decision_curve.svg)\n\n## Evidence and limitations')
     if c.get('alert_policy_summary'):
         policy=c['alert_policy_summary']['2']
         sequential='## Frozen sequential alert policy\n\nThe frozen policy retains the earliest safe threshold crossing at days 10, 14 and 18, with at most one alert per cycle; it uses saved frozen scores without retraining or retuning. Tier 2 produced {alerts:,} alerts across {cycles:,} generated cycles: precision {precision:.6f}; missed generated events {missed:,}/{events:,} ({missed_rate:.6f}); false alerts {false_rate:.6f} per synthetic patient-year. Median generated-event lead time was {lead:.6f} days among {lead_n:,} true-positive cycles with a generated ovulation day. These are simulator outcomes, not clinical alert rates. Full rows are in results/alert_policy_frozen_rows.csv.\n\n'.format(alerts=policy['alerts'],cycles=policy['n_cycles'],precision=policy['alert_precision'],missed=policy['missed_events'],events=policy['event_cycles'],missed_rate=policy['missed_event_rate'],false_rate=policy['false_alerts_per_synthetic_patient_year'],lead=policy['lead_time_days_median'],lead_n=policy['lead_time_n'])
         readme=readme.replace('## Evidence and limitations',sequential+'## Evidence and limitations')
     if c.get('robustness'):
         conditions=c['robustness']['conditions'];missing=conditions['additional_missing_fraction=0.6'];drift=conditions['device_drift_c_per_day=0.01'];shift=conditions['ovulation_base_shift_days=4']
-        robustness='## Frozen synthetic robustness extension\n\nThe fixed day-18 Tier-2 models and thresholds were tested under the predeclared synthetic sweeps. With 60% additional forced missing temperature readings, mean AUROC was {ma:.6f}, Brier {mb:.6f}, and safety withholding {mw:.6f}. At +0.01°C/day device drift, mean AUROC was {da:.6f} and Brier {db:.6f}. A +4-day generated timing shift on independent synthetic cohorts gave mean AUROC {sa:.6f} and Brier {sb:.6f}. These are simulator sensitivity analyses, not validation of a wearable device or clinical workflow. Full values: results_robustness_frozen.json and results/robustness_frozen.csv.\n\n![Frozen synthetic robustness](docs/figures/robustness.svg)\n\n'.format(ma=missing['mean_auroc'],mb=missing['mean_brier'],mw=missing['mean_safety_withhold_rate'],da=drift['mean_auroc'],db=drift['mean_brier'],sa=shift['mean_auroc'],sb=shift['mean_brier'])
+        robustness='## Frozen synthetic robustness extension\n\nThe fixed day-18 Tier-2 models and thresholds were tested under the predeclared synthetic sweeps. With 60% additional forced missing temperature readings, mean AUROC was {ma:.6f}, Brier {mb:.6f}, and safety withholding {mw:.6f}. At +0.01°C/day device drift, mean AUROC was {da:.6f} and Brier {db:.6f}. A +4-day generated timing shift on independent synthetic cohorts gave mean AUROC {sa:.6f} and Brier {sb:.6f}. These are simulator sensitivity analyses, not validation of a wearable device or clinical workflow. Full values: results/robustness_frozen.json and results/robustness_frozen.csv.\n\n![Frozen synthetic robustness](docs/figures/robustness.svg)\n\n'.format(ma=missing['mean_auroc'],mb=missing['mean_brier'],mw=missing['mean_safety_withhold_rate'],da=drift['mean_auroc'],db=drift['mean_brier'],sa=shift['mean_auroc'],sb=shift['mean_brier'])
         readme=readme.replace('## Evidence and limitations',robustness+'## Evidence and limitations')
     if c.get('bayesian_twin'):
         twin=c['bayesian_twin'];means=twin['mean_across_seeds'];ci=twin['pooled_patient_cluster_95ci']
-        section='## Frozen synthetic timing-posterior check\n\nA train-only discrete Bayesian posterior used a calendar/static prior and pre/post-event temperature, RHR and HRV likelihoods to estimate generated timing or absence. Its mean synthetic Brier was {tb:.6f}, versus {lb:.6f} for the frozen fitted logistic score; difference {d:.6f}, patient-cluster 95% CI [{lo:.6f}, {hi:.6f}]. Status: {status}. It remains a separately reported interpretation layer and does not replace the score, threshold, safety gate or alert policy. Full artifact: results_bayesian_twin_frozen.json and models/twin/.\n\n'.format(tb=means['twin_brier'],lb=means['logistic_brier'],d=means['twin_minus_logistic_brier'],lo=ci[0],hi=ci[1],status=twin['status'])
+        section='## Frozen synthetic timing-posterior check\n\nA train-only discrete Bayesian posterior used a calendar/static prior and pre/post-event temperature, RHR and HRV likelihoods to estimate generated timing or absence. Its mean synthetic Brier was {tb:.6f}, versus {lb:.6f} for the frozen fitted logistic score; difference {d:.6f}, patient-cluster 95% CI [{lo:.6f}, {hi:.6f}]. Status: {status}. It remains a separately reported interpretation layer and does not replace the score, threshold, safety gate or alert policy. Full artifact: results/bayesian_twin_frozen.json and models/twin/.\n\n'.format(tb=means['twin_brier'],lb=means['logistic_brier'],d=means['twin_minus_logistic_brier'],lo=ci[0],hi=ci[1],status=twin['status'])
         readme=readme.replace('## Evidence and limitations',section+'## Evidence and limitations')
     if c.get('lab_proxy'):
         lab=c['lab_proxy'];means=lab['means'];upper=lab['original_tier3_upper_bound_means']
-        section='## Simulated assay-like extension\n\nThis post-freeze Tier-2-plus-proxy analysis transforms simulator IR and androgen latents to positive `exp(latent)` values with independent 15% CV noise. It obtained mean synthetic AUROC {a:.6f}, standard AP {ap:.6f}, and Brier {b:.6f}; original Tier-3 oracle-adjacent internal-reference means were AUROC {ua:.6f} and Brier {ub:.6f}. These are not measured hormone values, do not have clinical units, and retain simulator-internal leakage risk. Full artifact: results_lab_proxy_extension.json.\n\n'.format(a=means['auroc'],ap=means['average_precision'],b=means['brier'],ua=upper['auroc'],ub=upper['brier'])
+        section='## Simulated assay-like extension\n\nThis post-freeze Tier-2-plus-proxy analysis transforms simulator IR and androgen latents to positive `exp(latent)` values with independent 15% CV noise. It obtained mean synthetic AUROC {a:.6f}, standard AP {ap:.6f}, and Brier {b:.6f}; original Tier-3 oracle-adjacent internal-reference means were AUROC {ua:.6f} and Brier {ub:.6f}. These are not measured hormone values, do not have clinical units, and retain simulator-internal leakage risk. Full artifact: results/lab_proxy_extension.json.\n\n'.format(a=means['auroc'],ap=means['average_precision'],b=means['brier'],ua=upper['auroc'],ub=upper['brier'])
         readme=readme.replace('## Evidence and limitations',section+'## Evidence and limitations')
     if c.get('operations'):
         ops=c['operations'];warm=ops['warm_latency_ms']
-        section='## Local operations measurement\n\nOn the build host, a cold new-process initial prediction took {cold:.6f} ms. Across {n:,} warm in-process calls, mean latency was {mean:.6f} ms and p95 {p95:.6f} ms; process peak RSS was {rss:.0f} KiB. This is host-specific local evidence, not a production-service SLA. See results_ops.json and docs/operations_methods.md.\n\n'.format(cold=ops['cold_subprocess_ms'],n=ops['warm_repeats'],mean=warm['mean'],p95=warm['p95'],rss=ops['process_peak_rss_kib'])
+        section='## Local operations measurement\n\nOn the build host, a cold new-process initial prediction took {cold:.6f} ms. Across {n:,} warm in-process calls, mean latency was {mean:.6f} ms and p95 {p95:.6f} ms; process peak RSS was {rss:.0f} KiB. This is host-specific local evidence, not a production-service SLA. See results/ops.json and docs/operations_methods.md.\n\n'.format(cold=ops['cold_subprocess_ms'],n=ops['warm_repeats'],mean=warm['mean'],p95=warm['p95'],rss=ops['process_peak_rss_kib'])
         readme=readme.replace('## Evidence and limitations',section+'## Evidence and limitations')
     if c.get('conformal_summary'):
         conformal=c['conformal_summary']
-        section='## Frozen synthetic conformal coverage\n\nFor the preregistered independent calibration sets, day-18 Tier-2 mean classification-set coverage was {cc:.6f} with mean set size {cs:.6f}. The separate heuristic ovulation-day band had mean conditional coverage {dc:.6f} with mean width {dw:.6f} days. The classification set is marginal, synthetic and generator-specific. The timing band failed this frozen coverage check and remains an illustration, not a reliable interval. Full per-seed/day/tier/archetype output: results_conformal_frozen.json.\n\n'.format(cc=conformal['classification_coverage_mean'],cs=conformal['mean_classification_set_size'],dc=conformal['day_band_coverage_mean'],dw=conformal['day_band_mean_width'])
+        section='## Frozen synthetic conformal coverage\n\nFor the preregistered independent calibration sets, day-18 Tier-2 mean classification-set coverage was {cc:.6f} with mean set size {cs:.6f}. The separate heuristic ovulation-day band had mean conditional coverage {dc:.6f} with mean width {dw:.6f} days. The classification set is marginal, synthetic and generator-specific. The timing band failed this frozen coverage check and remains an illustration, not a reliable interval. Full per-seed/day/tier/archetype output: results/conformal_frozen.json.\n\n'.format(cc=conformal['classification_coverage_mean'],cs=conformal['mean_classification_set_size'],dc=conformal['day_band_coverage_mean'],dw=conformal['day_band_mean_width'])
         readme=readme.replace('## Evidence and limitations',section+'## Evidence and limitations')
     videos={}
     for duration in (team['minimum_video_minutes'], cfg['short_video_minutes']):
@@ -297,4 +284,186 @@ Code uses the [MIT License](LICENSE). All project datasets are synthetic. Publis
     runbook+='| Recording time | Chapter / focus | On-screen action and narration |\n|---|---|---|\n'
     runbook+='\n'.join(f'| {i:02d}:00-{i+1:02d}:00 | {title} | {action} |' for i,(title,action) in enumerate(actions))
     runbook+=f"\n\nReserve the final {cfg['limitations_minutes']} minutes for limitations. Do not speed through them.\n\n## Human-only completion\n\nRecord a continuous demonstration, confirm its duration meets the official minimum, upload an accessible recording (for example, an unlisted video), provide its URL, and submit the public repository link on Unstop. The session has not recorded, uploaded or submitted anything. Do not invent a URL.\n"
-    return {'deck':deck,'architecture':architecture,'readme':readme,'video_scripts':videos,'runbook':runbook}
+    return {'deck':deck,'architecture':architecture,'readme':project_readme(c),'results':relink_for_docs(readme),
+            'video_scripts':videos,'runbook':runbook}
+
+
+REPO = "https://github.com/kushagragupta2005/CycleTwin"
+
+
+def relink_for_docs(markdown):
+    """Rewrite repository-root-relative links so the text works from docs/RESULTS.md."""
+    import re
+    def fix(match):
+        prefix, target = match.group(1), match.group(2)
+        if re.match(r'[a-z]+://|#', target):
+            return match.group(0)
+        if target.startswith('docs/'):
+            return f'{prefix}({target[len("docs/"):]})'
+        return f'{prefix}(../{target})'
+    return re.sub(r'(\]|!\[[^\]]*\])\(([^)\s]+)\)', fix, markdown)
+
+
+def project_readme(c):
+    """The repository landing page: overview first, headline evidence, links to the full results."""
+    team = c['context']['competition']; data = c['dataset']; cfg = c['configuration']
+    day = max(cfg['days']); primary_tier = max(t for t in cfg['tiers'] if t < max(cfg['tiers']))
+    frozen = {(r['Forecast day'], r['Tier']): r for r in c['frozen_summary']}
+    primary = frozen[(day, primary_tier)]
+    seeds = len(c['frozen']['seeds'])
+    drift = c['robustness']['conditions']['device_drift_c_per_day=0.01']
+    missing = c['robustness']['conditions']['additional_missing_fraction=0.6']
+    conformal = c['conformal_summary']; policy = c['alert_policy_summary'][str(primary_tier)]
+    twin = c['bayesian_twin']['mean_across_seeds']
+    f3 = lambda value: f'{value:.3f}'
+    tier_rows = '\n'.join(
+        f"| {tier} | {frozen[(day, tier)]['Inputs']} | {f3(frozen[(day, tier)]['Mean AUROC'])} | {f3(frozen[(day, tier)]['Mean Brier'])} |"
+        for tier in cfg['tiers'])
+    stack = '\n'.join('- `' + v + '`' for v in c['runtime_requirements'])
+    return f'''<div align="center">
+
+# CycleTwin
+
+**Forecasting late or absent ovulation from calendar and wearable signals: a synthetic-data research prototype with fail-closed safety gates.**
+
+[![CI]({REPO}/actions/workflows/ci.yml/badge.svg)]({REPO}/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.9 | 3.11](https://img.shields.io/badge/python-3.9%20%7C%203.11-blue.svg)](requirements.txt)
+[![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg)](https://streamlit.io)
+[![Data: synthetic only](https://img.shields.io/badge/data-synthetic%20only-orange.svg)](#limitations)
+
+[Quick start](#quick-start) · [How it works](#how-it-works) · [Results](#results) · [Full evaluation](docs/RESULTS.md) · [Limitations](#limitations) · [Pitch deck](deliverables/CycleTwin_pitch_deck.pdf)
+
+</div>
+
+> [!WARNING]
+> **Synthetic data only.** Not for diagnosis, contraception, conception planning or treatment decisions. No clinical validity, hormone inference or real-world accuracy is claimed.
+
+<p align="center"><img src="docs/screenshots/v3-patients.png" alt="Synthetic cohort view: fitted scores, review flags and data completeness per generated record" width="860"></p>
+
+## Overview
+
+Irregular cycles are often noticed late. CycleTwin asks a narrow research question: **can calendar history plus nightly wearable-style signals (temperature, resting heart rate, HRV, steps) flag a cycle whose ovulation comes after day {cfg['event_cutoff_day']}, or does not occur, early enough to matter?**
+
+Everything runs on a seeded simulator that mixes PMOS-like and typical archetypes; the development seeds alone hold {data['people']:,} generated people and {data['cycles']:,} cycles, and the frozen test uses separate reserved seeds. CycleTwin does **not** diagnose PMOS. The project's value is in the evaluation discipline: a predeclared, once-only frozen test, calibrated scores, explicit abstention, and published failure cases.
+
+## Features
+
+- **One persisted prediction path.** Calibrated logistic models (median imputation, scaling, Platt calibration) power the benchmark, cohort, patient and persona views alike. `src/inference.py` returns the probability, the validation threshold and exact additive feature contributions.
+- **Fail-closed safety gate.** Explicit rules withhold the score, interval, explanation and alerts instead of guessing: under 18 or early post-menarche, pregnancy-related states, hormonal contraception, abnormal thyroid or prolactin flags, missing safety fields, or wear-time completeness below 75%.
+- **Input tiers.** Calendar only → + wearables → + temperature → + EHR-lite, each evaluated separately; richer tiers fall back to calendar when validation shows no Brier gain.
+- **Sequential alerts.** At most one alert per cycle, at the earliest safe threshold crossing on days 10, 14 and 18, with no retuning on test data.
+- **Uncertainty and robustness.** Conformal classification sets, patient-cluster bootstrap intervals, and sweeps for missing data, sensor drift and timing shift.
+- **Clinician-style dashboard** (Streamlit) with plain/detailed language modes, a synthetic cohort, single-patient view, evidence page and a fictional persona walkthrough.
+- **Apple Health adapter.** Parses a limited `export.xml` subset in memory; imports are never scored.
+
+## Screenshots
+
+| Single generated record | Evidence page |
+|:---:|:---:|
+| <img src="docs/screenshots/v3-patient.png" alt="One generated record: fitted score, review flag, cycle summary and nightly temperature trace with missing nights" width="420"> | <img src="docs/screenshots/v3-evidence.png" alt="Evidence page: fitted model, primary display and frozen results by information tier" width="420"> |
+
+## Quick start
+
+```sh
+git clone {REPO}.git
+cd CycleTwin
+python3 -m venv .venv && . .venv/bin/activate
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+Then open <http://localhost:8501>. The fitted model artifacts ship with the repository, so no training step is needed.
+
+## How it works
+
+```mermaid
+flowchart LR
+    A[Synthetic EHR-lite<br/>static profile] --> C[Shared feature builder]
+    B[Synthetic nightly signals<br/>calendar and wearables] --> C
+    C --> D[Persisted logistic model<br/>Platt calibration · validation threshold]
+    D --> E{{Fail-closed<br/>safety gate}}
+    E -- passes --> F[Dashboard<br/>probability and exact contributions]
+    E -- fires --> G[Withhold score,<br/>interval and alerts]
+    H[Illustrative twin simulator] -. display only .-> F
+    I[Bayesian timing posterior] -. evaluated separately .-> F
+```
+
+The illustrative twin and the Bayesian posterior never feed the fitted score, threshold, safety gate or alert policy. See [docs/architecture.md](docs/architecture.md) and the [architecture deck](deliverables/CycleTwin_architecture.pdf).
+
+## Results
+
+Frozen evaluation (`frozen-v1` tag): the protocol was committed before the reserved seeds were generated and executed exactly once. Day-{day} means across {seeds} frozen seeds, {primary['Held-out cycles']:,} held-out generated cycles per tier:
+
+| Tier | Inputs | AUROC | Brier |
+|---:|---|---:|---:|
+{tier_rows}
+
+| Check (Tier {primary_tier}, day {day}) | Result |
+|---|---|
+| Sequential alert precision | {f3(policy['alert_precision'])} (missed events {f3(policy['missed_event_rate'])}) |
+| Median lead time of true alerts | {policy['lead_time_days_median']:.0f} days |
+| Conformal classification-set coverage | {f3(conformal['classification_coverage_mean'])} |
+| Bayesian timing posterior vs logistic (Brier) | {f3(twin['twin_brier'])} vs {f3(twin['logistic_brier'])} |
+
+### Where it breaks
+
+- On days 10 and 14 the retained model is mostly calendar history; temperature-derived signals only add a clear gain by day {day}.
+- The heuristic ovulation-day band covered **{f3(conformal['day_band_coverage_mean'])}** of applicable cases and **failed** its coverage check; it is shown as an illustration only.
+- With +0.01 °C/day simulated sensor drift, ranking holds (AUROC {f3(drift['mean_auroc'])}) but calibration degrades (Brier {f3(drift['mean_brier'])}).
+- With 60% extra missing temperature nights, AUROC falls to {f3(missing['mean_auroc'])}, and the safety gate withholds personal scores at a rate of {f3(missing['mean_safety_withhold_rate'])}.
+
+Full per-seed tables, confidence intervals, calibration, subgroup, robustness and operations results are in **[docs/RESULTS.md](docs/RESULTS.md)**. Every number above is generated from [docs/claims.json](docs/claims.json); none is typed by hand.
+
+## Project structure
+
+```text
+app.py            Streamlit entry point (v3 interface)
+ui3/              Interface pages and theme
+src/              Simulator, features, model, inference, safety gate, alerts, twin, adapters
+scripts/          Evaluation, frozen run, reporting, claims and deliverable builders
+models/           Persisted model artifacts and model cards (development and frozen)
+results/          Evaluation outputs: development, frozen, robustness, conformal, operations
+docs/             Methods, assumptions, generated claims, full results, figures
+deliverables/     Pitch deck and architecture (PDF and PPTX)
+tests/            Unit tests and Streamlit AppTests
+```
+
+## Development
+
+```sh
+python -m unittest discover -s tests       # unit tests and Streamlit AppTests
+python scripts/build_claims.py --check     # claims match the stored artifacts
+python scripts/validate_claims.py          # README, results doc and decks match the claims
+make all                                   # regenerate development evaluation, claims, docs and figures
+```
+
+README.md and docs/RESULTS.md are generated: edit `scripts/deliverable_content.py`, then run `python scripts/build_claims.py && python scripts/write_claim_deliverables.py`. The frozen results are immutable; `scripts/run_frozen.py` refuses to run anywhere but the `frozen-v1` commit.
+
+## Tech stack
+
+Python, NumPy, pandas, scikit-learn, SciPy, Streamlit and Altair. Pinned runtime dependencies:
+
+{stack}
+
+## Limitations
+
+- All labels and signals come from one simulator, so strong results can reflect generator recovery. There is no clinical, external or prospective validation.
+- EHR-lite includes simulator-internal variables that also shape the label; it is an oracle-adjacent check, not EHR fusion.
+- No measured hormones, device validation, treatment model, contraception guidance or conception-planning support exists.
+- Older generator start dates can overlap, and logged-start error is not fully propagated through feature alignment.
+
+See [docs/assumptions.md](docs/assumptions.md), [docs/eval_plan.md](docs/eval_plan.md) and [docs/tripod_ai.md](docs/tripod_ai.md).
+
+## Acknowledgements
+
+Built by Kushagra Gupta (Vellore Institute of Technology, VIT) as the solo team {team['team']} for the [Happiest Health Digital Twin Challenge 2026]({team['url']}). Submission materials are archived in [docs/submission/](docs/submission/). Published medical references provide context only and are not training data.
+
+## Citation
+
+If you use this work, please cite it via [CITATION.cff](CITATION.cff) (GitHub's "Cite this repository" button).
+
+## License
+
+[MIT](LICENSE). All project datasets are synthetic.
+'''

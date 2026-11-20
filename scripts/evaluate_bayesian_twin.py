@@ -52,6 +52,6 @@ def run():
     result['pooled_patient_cluster_95ci']=pooled_ci
     result['promotion']='integrate only if pooled upper patient-cluster bound is <= margin; this implementation remains a separate interpretation layer.'
     result['status']='noninferior synthetic check; still separate interpretation layer' if pooled_ci[1] <= protocol['noninferiority_brier_margin'] else 'not promoted; separate interpretation layer'
-    (ROOT/'results_bayesian_twin_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
+    (ROOT/'results/bayesian_twin_frozen.json').write_text(json.dumps(result,indent=2)+'\n')
 
 if __name__=='__main__':run()

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class PersistedInferenceTests(unittest.TestCase):
     def test_classification_regression_to_audited_results(self):
         before = json.loads((ROOT / "tests/fixtures/classification_before_audit.json").read_text())
-        after = json.loads((ROOT / "results.json").read_text())
+        after = json.loads((ROOT / "results/development.json").read_text())
 
         def compare(a, b, path):
             if isinstance(a, dict):

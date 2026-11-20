@@ -10,8 +10,14 @@ process.env.RUNTIME_NODE_MODULES ||= await fs.realpath(path.join(buildDir,'node_
 process.env.RUNTIME_NODE ||= process.execPath;
 const require=createRequire(path.join(buildDir,'runtime.cjs'));
 const {Presentation,PresentationFile}=await import(pathToFileURL(require.resolve('@oai/artifact-tool')).href);
-const skill=process.env.CYCLETWIN_PRESENTATION_SKILL || '/Users/kushagragupta/.codex/plugins/cache/openai-primary-runtime/presentations/26.1015.12040/skills/presentations';
-const runtimePython=process.env.CYCLETWIN_BUILD_PYTHON || '/Users/kushagragupta/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/bin/python3';
+function requiredEnv(name){
+  if(!process.env[name]) throw new Error(`Set ${name} before building the decks (see the comments at the top of this file).`);
+  return process.env[name];
+}
+// CYCLETWIN_PRESENTATION_SKILL: folder containing container_tools/artifact_tool_utils.mjs
+// CYCLETWIN_BUILD_PYTHON: Python interpreter used for the PDF export step
+const skill=requiredEnv('CYCLETWIN_PRESENTATION_SKILL');
+const runtimePython=requiredEnv('CYCLETWIN_BUILD_PYTHON');
 const {finalizePresentation}=await import(pathToFileURL(path.join(skill,'container_tools/artifact_tool_utils.mjs')).href);
 const claims=JSON.parse(await fs.readFile(path.join(root,'docs/claims.json'),'utf8'));
 const revision=Date.now().toString();
