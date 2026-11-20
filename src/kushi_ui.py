@@ -42,7 +42,7 @@ def _show_forecast(record, day, tier, flags=None):
     st.write(f"Synthetic class set: {band['class_set']} · both labels means the set does not choose one outcome.")
     metric = output["metrics"]
     st.caption(f"This persisted model · synthetic development AUROC {metric['auroc']:.6f}; Brier {metric['brier']:.6f}; n={metric['n_cycles']}. Not clinical validation.")
-    st.dataframe(pd.DataFrame(output["contributions"]), hide_index=True, use_container_width=True)
+    st.dataframe(pd.DataFrame(output["contributions"]), hide_index=True, width="stretch")
     st.caption("Exact coefficient × standardized-value evidence. Calibrated contributions plus intercept reproduce the final logit. Associations are not causes.")
     return output
 
@@ -140,9 +140,9 @@ def render_kushi():
             st.info("Frozen-seed evaluation is pending; current results are development evidence.")
         else:
             st.caption("Frozen synthetic results are available; these still do not establish clinical validity.")
-            st.dataframe(pd.DataFrame(claims['frozen_summary']),hide_index=True,use_container_width=True)
+            st.dataframe(pd.DataFrame(claims['frozen_summary']),hide_index=True,width="stretch")
         with st.expander('Development results: older seeds'):
-            st.dataframe(pd.DataFrame(claims['summary']),hide_index=True,use_container_width=True)
+            st.dataframe(pd.DataFrame(claims['summary']),hide_index=True,width="stretch")
         render_reporting(claims,tier)
         render_alert_policy(claims)
         render_bayesian_twin(claims)

@@ -1,6 +1,7 @@
-"""Streamlit Cloud entry point for the reviewed CycleTwin v3 interface.
+"""Streamlit entry point (also the Streamlit Cloud main file) for the CycleTwin v3 interface.
 
-The former dashboard is retained in ``app_legacy.py`` for local review.
+The pre-v3 dashboard is retained in ``app_legacy.py`` for local review.
 """
+from ui3.app import main
 
-import app_v3  # noqa: F401  Streamlit executes the imported v3 page.
+main()
