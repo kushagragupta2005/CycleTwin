@@ -330,7 +330,7 @@ if page == "Method":
     render_workflow()
     if claims["frozen"] is not None:
         st.subheader("Frozen synthetic evaluation")
-        st.dataframe(pd.DataFrame(claims["frozen_summary"]),hide_index=True,use_container_width=True)
+        st.dataframe(pd.DataFrame(claims["frozen_summary"]),hide_index=True,width="stretch")
         st.caption("The frozen-v1 tag predates the guarded reserved-seed run. No clinical or external validation is implied.")
     st.subheader("Development evaluation results")
     plain_words("Read fitted-model performance by input tier and forecast day. All outcomes and inputs are generated.")
@@ -343,13 +343,13 @@ if page == "Method":
     st.metric("Fitted benchmark Brier",f"{np.mean([m['brier'] for m in model_rows]):.3f}",help="Mean squared probability error across synthetic held-out seeds for the selected tier. Lower is better.")
     st.subheader("Sensor-tier comparison")
     plain_words("Matching rows can reflect a validation-selected calendar fallback. EHR-lite includes simulator internals and is oracle-adjacent.")
-    st.dataframe(pd.DataFrame(benchmark_summary),hide_index=True,use_container_width=True)
+    st.dataframe(pd.DataFrame(benchmark_summary),hide_index=True,width="stretch")
     st.subheader("Selected-tier seed details")
     plain_words("The confidence intervals resample patients; cycles from a patient stay together.")
     st.dataframe(pd.DataFrame([{"Seed":seed,"AUROC":round(metric["auroc"],3),
                                 "AUROC 95% CI":f"{metric['auroc_cluster_bootstrap_95ci'][0]:.3f}–{metric['auroc_cluster_bootstrap_95ci'][1]:.3f}",
                                 "Brier":round(metric["brier"],3),"Held-out cycles":metric["n_cycles"]}
-                               for seed,metric in zip(benchmark["seeds"].keys(),model_rows)]),hide_index=True,use_container_width=True)
+                               for seed,metric in zip(benchmark["seeds"].keys(),model_rows)]),hide_index=True,width="stretch")
     st.caption("These synthetic benchmark figures describe fitted models. They do not establish clinical validity or confidence for an individual record.")
     st.caption("Synthetic held-out data only. Patient-cluster bootstrap confidence intervals; not clinical performance or a confidence guarantee for this record.")
     st.markdown("**Method:** synthetic generator → tiered fitted benchmark → held-out evaluation. The dashboard uses the fitted classifier; the simplified twin remains a separate illustration; the twin state is not used in the benchmark score.")
@@ -386,7 +386,7 @@ with st.expander(f"Model card · fitted benchmark Tier {display_tier}"):
     st.caption("These synthetic benchmark figures describe fitted models. They do not establish clinical validity or confidence for an individual record.")
     st.dataframe(pd.DataFrame([{"Seed":seed, "AUROC":round(metric["auroc"],3), "AUROC 95% CI":f"{metric['auroc_cluster_bootstrap_95ci'][0]:.3f}–{metric['auroc_cluster_bootstrap_95ci'][1]:.3f}",
                                 "Brier":round(metric["brier"],3), "Held-out cycles":metric["n_cycles"]}
-                       for seed,metric in zip([str(item["prediction"]["seed"])],model_rows)]),hide_index=True,use_container_width=True)
+                       for seed,metric in zip([str(item["prediction"]["seed"])],model_rows)]),hide_index=True,width="stretch")
     st.caption("Synthetic held-out data only. Patient-cluster bootstrap confidence intervals; not clinical performance or a confidence guarantee for this record.")
 
 if item["prediction"]["fallback_used"]:
@@ -470,7 +470,7 @@ with left:
     st.caption("Shared synthetic insulin-resistance latent drives both axes. Coupling sweep: "+str(coupling_sweep(record["ir"],record["androgen"])))
     st.subheader("Exact fitted feature evidence")
     st.caption("Coefficient × standardized input, with imputation shown. Calibrated-logit contributions plus the calibrated intercept reproduce the fitted probability. Association, not causation.")
-    st.dataframe(pd.DataFrame(item["prediction"]["contributions"]),hide_index=True,use_container_width=True)
+    st.dataframe(pd.DataFrame(item["prediction"]["contributions"]),hide_index=True,width="stretch")
 with right:
     st.subheader("Two-axis risk view")
     plain_words("The cycle score and the glucose illustration describe separate synthetic signals.")

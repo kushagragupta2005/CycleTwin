@@ -93,7 +93,7 @@ def render_kushi(*, claims: dict, language: str) -> None:
 
     st.markdown("## Generated history")
     st.markdown("**In plain words:** These are the generated lengths used for the fictional backstory. They are not measurements from a person.")
-    st.dataframe(pd.DataFrame({"Past generated cycle": range(1, len(persona["six_past_lengths"]) + 1), "Length (days)": persona["six_past_lengths"]}), hide_index=True, use_container_width=True)
+    st.dataframe(pd.DataFrame({"Past generated cycle": range(1, len(persona["six_past_lengths"]) + 1), "Length (days)": persona["six_past_lengths"]}), hide_index=True, width="stretch")
     with st.expander("How this fictional example was selected", expanded=detailed):
         st.write(persona["selection_rule"])
         st.caption("The selection rule does not consult a model score. Profile age, BMI, and family-history values are declared fictional overrides.")
@@ -117,11 +117,11 @@ def render_kushi(*, claims: dict, language: str) -> None:
     st.line_chart(observations[["Temperature offset (°C)"]])
     st.caption(f"{observations['Temperature offset (°C)'].notna().sum()} of {len(observations)} generated nightly temperatures are present; missing nights remain missing.")
     with st.expander("Advanced study details", expanded=detailed):
-        st.dataframe(observations, use_container_width=True)
+        st.dataframe(observations, width="stretch")
         st.dataframe(pd.DataFrame([{
             "Age": record["age"], "BMI": record["bmi"], "Family history": record["family_history"],
             "Simulator IR latent": record["ir"], "Simulator androgen": record["androgen"],
-        }]), hide_index=True, use_container_width=True)
+        }]), hide_index=True, width="stretch")
         st.caption("The static values are simulator internals, not real EHR records, clinical laboratory results, or hormone measurements. Tier 3 is an oracle-adjacent research check.")
 
     st.markdown("### The fitted research display")
@@ -148,7 +148,7 @@ def render_kushi(*, claims: dict, language: str) -> None:
         output = _scenario_output(item_record, day, tier, synthetic_safety_record(item_record, day))
         decision = "Score withheld" if output["abstain"] else ("Flagged" if output["flag"] else "Not flagged")
         outcomes.append({"Scenario cycle": item["logical_cycle"], "Declared seed": item["seed"], "Generated scenario decision": decision})
-    st.dataframe(pd.DataFrame(outcomes), hide_index=True, use_container_width=True)
+    st.dataframe(pd.DataFrame(outcomes), hide_index=True, width="stretch")
     st.markdown(
         "- This scenario does not diagnose PMOS, confirm ovulation, or infer a hormone level.\n"
         "- The score, timing range, and guardrails are generated-demo behavior, not clinical evidence.\n"

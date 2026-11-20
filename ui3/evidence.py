@@ -1,10 +1,10 @@
 """Evidence page for the isolated v3 interface; values come from claims.json."""
 from __future__ import annotations
 
-from pathlib import Path
-
 import pandas as pd
 import streamlit as st
+
+from src.paths import FIGURES
 
 
 def _results_table(frozen_summary: list[dict]) -> pd.DataFrame:
@@ -58,7 +58,7 @@ def render_evidence(*, claims: dict, language: str) -> None:
 
     st.markdown("## Frozen results by information tier")
     st.markdown("**In plain words:** Higher AUROC means the model ranks generated late-or-missing cycles ahead of other generated cycles more often. Lower Brier means smaller probability error inside this simulator.")
-    st.dataframe(_results_table(summary), hide_index=True, use_container_width=True)
+    st.dataframe(_results_table(summary), hide_index=True, width="stretch")
     st.caption("Every row is generated data only. A retained feature count of zero means validation kept the simpler calendar feature set for that requested tier.")
 
     st.markdown("## Uncertainty and safety checks")
@@ -70,12 +70,12 @@ def render_evidence(*, claims: dict, language: str) -> None:
         "Ovulation-day coverage (failed)": conformal["day_band_coverage_mean"],
         "Mean day-range width": conformal["day_band_mean_width"],
     }])
-    st.dataframe(uncertainty, hide_index=True, use_container_width=True)
+    st.dataframe(uncertainty, hide_index=True, width="stretch")
     st.markdown('<aside class="ct-callout"><b>⚠ Failed timing range.</b> The ovulation-day range did not achieve the documented coverage target in frozen generated evaluation. It is an illustration, not a reliable timing interval.</aside>', unsafe_allow_html=True)
 
     st.markdown("## Alert-policy check")
     st.markdown("**In plain words:** The demo permits one eligible alert per generated patient-cycle and retains the earliest threshold crossing. These counts are not clinical alert rates.")
-    st.dataframe(_alert_table(claims["alert_policy_summary"]), hide_index=True, use_container_width=True)
+    st.dataframe(_alert_table(claims["alert_policy_summary"]), hide_index=True, width="stretch")
 
     with st.expander("Diagnostics and local runtime details", expanded=detailed):
         st.markdown("**In plain words:** These are extra generated-data diagnostics. They do not alter the saved model or prove reliability on external data.")
@@ -86,13 +86,13 @@ def render_evidence(*, claims: dict, language: str) -> None:
                 "Cold subprocess (ms)": operations["cold_subprocess_ms"], "Warm mean (ms)": warm["mean"],
                 "Warm p95 (ms)": warm["p95"], "Warm repeats": operations["warm_repeats"],
                 "Process peak RSS (KiB)": operations["process_peak_rss_kib"],
-            }]), hide_index=True, use_container_width=True)
+            }]), hide_index=True, width="stretch")
             st.caption(operations["rss_note"])
         for filename, caption in (
             ("reliability.svg", "Frozen synthetic reliability by snapshot; counts pool separate seed models."),
             ("decision_curve.svg", "Frozen synthetic day-18 decision curves; threshold odds are assumptions."),
         ):
-            figure = Path("docs/figures") / filename
+            figure = FIGURES / filename
             if figure.exists():
                 st.image(str(figure), caption=caption)
 
