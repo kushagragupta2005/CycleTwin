@@ -6,7 +6,7 @@ DOCS = ROOT / "docs"
 FIGURES = DOCS / "figures"
 THEME_CSS = ROOT / "ui3" / "theme.css"
 
-REPO_URL = "https://github.com/kushagragupta2005/CycleTwin_VIT"
+REPO_URL = "https://github.com/kushagragupta2005/CycleTwin"
 
 
 def repo_url(relative_path: str) -> str:
